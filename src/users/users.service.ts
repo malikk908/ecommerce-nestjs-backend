@@ -1,13 +1,14 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async createUser(createUserDto: Prisma.UserCreateInput) {
+  async createUser(createUserDto: CreateUserDto) {
 
     const { name, email, password } = createUserDto
     
@@ -23,12 +24,16 @@ export class UsersService {
       }
     })
 
+    if(user.password){
+      throw new BadRequestException('Account already exists, please login')
+    }
+
     if(user){
       user = await this.databaseService.user.update({
         where: { email: email},
         data: {
           name: name,
-          password: password
+          password: hashedPassword
         }
       })      
     } else {
