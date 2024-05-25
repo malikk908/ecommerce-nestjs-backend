@@ -2,18 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly userService: UsersService
+  ) {}
   async create(createOrderDto: CreateOrderDto) {
     const { email, name, items } = createOrderDto;
 
-    let user = await this.databaseService.user.findUnique({
-      where: {
-        email,
-      },
-    });
+    let user = await this.userService.findByEmail(email)
 
     if (!user) {
       user = await this.databaseService.user.create({

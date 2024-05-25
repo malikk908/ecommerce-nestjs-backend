@@ -1,16 +1,16 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
-import bcrypt from "bcrypt"
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createUserDto: Prisma.UserCreateInput) {
+  async createUser(createUserDto: Prisma.UserCreateInput) {
 
     const { name, email, password } = createUserDto
-
+    
     if(!password){
       throw new BadRequestException("Password is required")
     }
@@ -44,23 +44,17 @@ export class UsersService {
     return user    
   }
 
-  findAll() {
-    return this.databaseService.user.findMany();
+  async findByEmail(email: string){
+    return this.databaseService.user.findUnique({
+      where: { email }
+    })
   }
-
+  
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }
 
   update(id: number, updateUserDto: Prisma.UserUpdateInput) {
     return `This action updates a #${id} user`;
-  }
-
-  // remove(id: number) {
-  //   return this.databaseService.user.delete({
-  //     where: {
-  //       id
-  //     }
-  //   });
-  // }
+  }  
 }
