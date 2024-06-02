@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ValidationPipe } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Prisma } from '@prisma/client';
 
@@ -7,31 +7,31 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Body() createProductDto: Prisma.ProductCreateInput) {
+  create(@Body(ValidationPipe) createProductDto: Prisma.ProductCreateInput) {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
   findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('category') category?: string,
+    @Query('page', ParseIntPipe) page?: number,
+    @Query('limit', ParseIntPipe) limit?: number,
+    @Query('category', ParseIntPipe) category?: string,
   ) {
     return this.productsService.findAll({ page, limit, category });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.productsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: Prisma.ProductUpdateInput) {
-    return this.productsService.update(+id, updateProductDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: Prisma.ProductUpdateInput) {
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  remove(@Param('id',ParseIntPipe) id: number) {
+    return this.productsService.remove(id);
   }
 }
